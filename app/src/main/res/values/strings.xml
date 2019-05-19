@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">王卡配置助手</string>
+    <string name="version">详细设置说明请查看群内科普\nwifi状态下仅写入最新配置，不会唤醒\n自动写入需要助手保持后台\n</string>
+    <string name="write">TinyProxy</string>
+    <string name="writeTy">TyProxy</string>
+    <string name="writeTyFlow">TyFlow</string>
+    <string name="writeVpnProxy">VpnProxy</string>
+    <string name="ip">自定义ip(8090|8091端口的ip)</string>
+    <string name="guid">将包含GUID和Token信息的#1文本复制进来</string>
+    <string name="generate">生成配置</string>
+    <string name="ip1">157.255.173.182</string>
+    <string name="ip2">157.255.137.185</string>
+    <string name="ip3">140.207.62.38</string>
+    <string name="ip4">210.22.247.196</string>
+    <string name="ip5">111.206.25.206</string>
+    <string name="ip6">123.126.122.24</string>
+    <string name="ip7">125.39.52.35</string>
+    <string name="ip8">111.161.111.158</string>
+    <string name="ip9">58.144.152.119</string>
+    <string name="host">helper.vtop.design</string>
+    <string name="reward">如果你觉得ok,就请我喝瓶肥宅快乐水吧</string>
+    <string name="click_auto">辅助点击开关</string>
+
+</resources>

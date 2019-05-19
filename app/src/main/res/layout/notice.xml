@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+            android:layout_marginLeft="5dp"
+            android:width="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/btn1"
+            android:layout_centerVertical="true">
+        <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/wangka"
+        />
+    </LinearLayout>
+    <LinearLayout
+            android:width="0dp"
+            android:layout_weight="1"
+            android:layout_toRightOf="@id/btn2"
+            android:id="@+id/btn2"
+            android:layout_centerVertical="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/cloudconfig"
+        />
+        <TextView
+                android:background="@drawable/textpadding"
+                android:layout_gravity="center"
+                android:textSize="10sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:text="获取配置"/>
+    </LinearLayout>
+
+    <LinearLayout android:width="0dp"
+                  android:layout_toRightOf="@id/btn3"
+                  android:id="@+id/btn3"
+                  android:layout_centerVertical="true"
+                  android:layout_weight="1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="vertical">
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/script"
+        />
+        <TextView
+                android:layout_gravity="center"
+                android:background="@drawable/textpadding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#FFFFFF"
+                android:text="唤醒火箭"/>
+    </LinearLayout>
+    <LinearLayout android:width="0dp"
+                  android:layout_marginRight="5dp"
+                  android:layout_toRightOf="@+id/btn3"
+                  android:id="@+id/btn4"
+                  android:layout_centerVertical="true"
+                  android:layout_weight="1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="vertical">
+        <ImageView
+                android:layout_width="22dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/location"
+        />
+        <TextView
+                android:background="@drawable/textpadding"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#FFFFFF"
+                android:text="检测位置"/>
+    </LinearLayout>
+    <LinearLayout android:width="0dp"
+                  android:layout_marginRight="5dp"
+                  android:layout_toRightOf="@+id/btn3"
+                  android:id="@+id/btn5"
+                  android:layout_centerVertical="true"
+                  android:layout_weight="1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="vertical">
+        <ImageView
+                android:layout_width="22dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/smile"
+        />
+        <TextView
+                android:background="@drawable/textpadding"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#FFFFFF"
+                android:text="关闭助手"/>
+    </LinearLayout>
+
+
+</LinearLayout>
