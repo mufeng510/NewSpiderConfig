@@ -2,6 +2,7 @@ package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -104,10 +105,12 @@ public class NewConfig {
     }
     //解密GUID
     public String decryptGuid(String decryptGuid){
+        Log.i("Guid替换数字",time.charAt(time.length()-1)+" "+time);
         return decryptGuid.replace('*',password((int)time.charAt(time.length()-1)));
     }
     //解密Token
     public String decryptToken(String decryptToken){
+        Log.i("Token替换数字",time.charAt(time.length()-2)+" "+time);
         return decryptToken.replace('*',password((int)time.charAt(time.length()-2)));
     }
 }

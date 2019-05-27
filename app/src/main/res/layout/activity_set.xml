@@ -163,7 +163,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/ip1"
-                        android:id="@+id/ip1"
                 />
                 <RadioButton
                         android:layout_width="match_parent"
@@ -204,6 +203,11 @@
                         android:text="@string/ip7"
                         android:id="@+id/ip7"
                 />
+                <RadioButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ip8"
+                        android:id="@+id/ip8"/>
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
