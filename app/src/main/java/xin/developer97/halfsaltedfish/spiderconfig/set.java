@@ -90,84 +90,17 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         tools.setContext(getApplicationContext());
 
         //关于
-        final Handler mHandler = new Handler(getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-            }
-        };
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final TextView About_software = findViewById(R.id.About_software);
-                        //获取本地版本号
-                        String versionName;
-                        try {
-                            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-                        } catch (PackageManager.NameNotFoundException e) {
-                            e.printStackTrace();
-                            versionName = "获取失败";
-                        }
-                        final String final_versionName = versionName;
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                About_software.setText("当前版本："+ final_versionName+"\n"+"最新版本：查询中");
-                            }
-                        });
-                        //获取最新版本号
-                        HttpURLConnection con=null;
-                        String path="http://" + getApplicationContext().getString(R.string.host) +"/android_connect/get_version.php";
-                        try {
-                            URL url = new URL(path);
-                            con= (HttpURLConnection) url.openConnection();
-                            con.setDoInput(true);
-                            con.setDoOutput(true);
-                            con.setUseCaches(false);
-                            con.setRequestMethod("POST");
-                            con.setRequestProperty("Connection", "keep-alive");
-                            con.setRequestProperty("contentType", "application/json");
-
-                            con.connect();
-
-                            OutputStream out = con.getOutputStream();
-                            // 写入请求的字符串
-                            out.write((getPackageName()).getBytes("utf-8"));
-                            out.flush();
-                            out.close();
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                            String lines;
-                            StringBuffer sbf = new StringBuffer();
-                            while ((lines = reader.readLine()) != null) {
-                                lines = new String(lines.getBytes(), "utf-8");
-                                sbf.append(lines);
-                            }
-                            String versionJson = sbf.toString();
-                            String versionName_new = "查询失败";
-                            if (versionJson != "{\"success\":0,\"message\":\"No products found\"}") {
-                                try {
-                                    JSONObject res = new JSONObject(versionJson);
-                                    JSONArray config = new JSONArray(res.getString("version"));
-                                    JSONObject versionText = config.getJSONObject(0);
-                                    versionName_new = versionText.getString("versionName");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            final String final_versionName_new = versionName_new;
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    About_software.setText("当前版本："+ final_versionName+"\n"+"最新版本：" + final_versionName_new);
-                                }
-                            });
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-        ).start();
+        final TextView About_software = findViewById(R.id.About_software);
+        //获取本地版本号
+        String versionName;
+        try {
+            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            versionName = "获取失败";
+        }
+        final String final_versionName = versionName;
+        About_software.setText("当前版本："+ final_versionName+"\n"+"最新版本：" + tools.versionName_new);
 
         //获取选中tiny
         tinyGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -304,7 +237,7 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         autoBack.setChecked(sp.getBoolean("autoBack", false));
         autoCheckIp.setChecked(sp.getBoolean("autoCheckIp", false));
 
-        autotime.setText(sp.getInt("autotime", 30) + "");
+        autotime.setText(sp.getInt("autotime", 60) + "");
         packge.setText(sp.getString("packgeName", ""));
         confPath.setText(sp.getString("path", ""));
         ip.setText(sp.getString("ip", "157.255.173.182"));

@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.*;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 import org.json.JSONArray;
@@ -44,6 +45,7 @@ public class Tools {
 
     private static Context context;
     private SharedPreferences sp;
+    public static String versionName_new = "查询失败";
 
     public void setContext(Context context) {
         this.context = context;
@@ -553,7 +555,7 @@ public class Tools {
     public void openTimedTask(){
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent("TimedTask"), 0);
         AlarmManager manager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        int anHour = sp.getInt("autotime", 30) * 60 * 1000;
+        int anHour = sp.getInt("autotime", 60) * 60 * 1000;
         long triggerAtTime = SystemClock.elapsedRealtime() + anHour;
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
     }

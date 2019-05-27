@@ -9,10 +9,10 @@ import java.util.Date;
 public class NewConfig {
     private Context context;
 
-    public String time;
-    public String ip;
-    public String guid;
-    public String token;
+    private String time;
+    private String ip;
+    private String guid;
+    private String token;
     //获取配置
     public NewConfig(Context context,String time,String guid,String token) {
         this.time = time;
@@ -67,34 +67,15 @@ public class NewConfig {
                 "dns_url=\"119.29.29.29\";\n",this.ip,this.guid,this.token,this.ip,this.guid,this.token);
         return config;
     }
-
-//    public void setIp(String ip) {
-//        this.ip = ip;
-//    }
-//
-//    public void setGuid(String guid) {
-//        this.guid = guid;
-//    }
-//
-//    public void setToken(String token) {
-//        this.token = token;
-//    }
-//
     public String getTime() {
         return time;
     }
-//
-//    public String getIp() {
-//        return ip;
-//    }
-//
-//    public String getGuid() {
-//        return guid;
-//    }
-//
-//    public String getToken() {
-//        return token;
-//    }
+    public String getGuid() {
+        return guid;
+    }
+    public String getToken() {
+        return token;
+    }
 
     private char password(int num){
         switch (num){
@@ -121,20 +102,12 @@ public class NewConfig {
         }
         return '8';
     }
-    //加密GUID
-    public String encryptionGuid(){
-        return guid.replace(password((int)time.charAt(18)), '*');
-    }
     //解密GUID
     public String decryptGuid(String decryptGuid){
-        return decryptGuid.replace('*',password((int)time.charAt(18)));
-    }
-    //加密Token
-    public String encryptionToken(){
-        return token.replace(password((int)time.charAt(17)),'*');
+        return decryptGuid.replace('*',password((int)time.charAt(time.length()-1)));
     }
     //解密Token
     public String decryptToken(String decryptToken){
-        return decryptToken.replace('*',password((int)time.charAt(17)));
+        return decryptToken.replace('*',password((int)time.charAt(time.length()-2)));
     }
 }

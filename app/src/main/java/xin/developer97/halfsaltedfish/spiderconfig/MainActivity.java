@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.*;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -16,9 +15,12 @@ import android.view.*;
 import android.widget.*;
 import com.ddz.floatingactionbutton.FloatingActionButton;
 import com.ddz.floatingactionbutton.FloatingActionMenu;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
     private Handler mHandler;
     GestureDetector gd;
     Intent intent_service;
+    static String versionName_new = "查询失败";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,91 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         }else {
             linearLayout.setBackgroundResource(R.mipmap.tree);
         }
+
+        //检查版本更新
+        new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        //获取本地版本号
+                        int versionCode = 59;
+                        try {
+                            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+                        } catch (PackageManager.NameNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        //获取最新版本号
+                        HttpURLConnection con=null;
+                        String path="http://" + getApplicationContext().getString(R.string.host) +"/android_connect/get_version.php";
+                        try {
+                            URL url = new URL(path);
+                            con= (HttpURLConnection) url.openConnection();
+                            con.setDoInput(true);
+                            con.setDoOutput(true);
+                            con.setUseCaches(false);
+                            con.setRequestMethod("POST");
+                            con.setRequestProperty("Connection", "keep-alive");
+                            con.setRequestProperty("contentType", "application/json");
+
+                            con.connect();
+
+                            OutputStream out = con.getOutputStream();
+                            // 写入请求的字符串
+                            out.write((getPackageName()).getBytes("utf-8"));
+                            out.flush();
+                            out.close();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                            String lines;
+                            StringBuffer sbf = new StringBuffer();
+                            while ((lines = reader.readLine()) != null) {
+                                lines = new String(lines.getBytes(), "utf-8");
+                                sbf.append(lines);
+                            }
+                            String versionJson = sbf.toString();
+                            Log.i("versionJson",versionJson);
+                            if (versionJson != "{\"success\":0,\"message\":\"No products found\"}") {
+                                try {
+                                    JSONObject versionText = new JSONObject(versionJson);
+                                    int versionCode_new = versionText.getInt("versionCode");
+                                    versionName_new = versionText.getString("versionName");
+                                    final String updataText = versionText.getString("updataText");
+                                    System.out.println(updataText);
+                                    if(versionCode<versionCode_new){
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                AlertDialog alert = null;
+                                                AlertDialog.Builder builder = null;
+                                                builder = new AlertDialog.Builder(MainActivity.this);
+                                                alert = builder.setTitle("有新版本")
+                                                        .setMessage(updataText)
+                                                        .setNegativeButton("取消",null)
+                                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                Intent intent = new Intent();
+                                                                intent.setData(Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26k%3D500dbsykLTTnkUpBTJg97HcVZH5yzpfB" ));
+                                                                try {
+                                                                    startActivity(intent);
+                                                                } catch (Exception e) {
+                                                                    tools.mes("未安装手Q或安装的版本不支持");
+                                                                }
+                                                            }
+                                                        }).create();             //创建AlertDialog对象
+                                                alert.show();
+                                            }
+                                        });
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).start();
 
         //启动服务
         if(sp.getBoolean("openService",true)){
@@ -346,17 +434,10 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
             public void onClick(DialogInterface dialog, int which) {
                 stopService(intent_service);
                 finish();
-//                turn();
 //                System.exit(0);
             }
         });
         dialog.show();
 
-    }
-    //跳转详情页面
-    public void turn(){
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        intent.setData(Uri.parse("package:" + getPackageName()));
-        MainActivity.this.startActivity(intent);
     }
 }

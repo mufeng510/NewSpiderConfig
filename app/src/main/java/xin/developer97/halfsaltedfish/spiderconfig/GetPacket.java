@@ -181,14 +181,10 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
                 new Runnable() {
                     @Override
                     public void run() {
-                        String time = newConfig.getTime();
-                        String guid = newConfig.encryptionGuid();
-                        String token = newConfig.encryptionToken();
-
                         try {
-                            jsonObject.put("Time",time);
-                            jsonObject.put("Guid",guid);
-                            jsonObject.put("Token",token);
+                            jsonObject.put("Time",newConfig.getTime());
+                            jsonObject.put("Guid",newConfig.getGuid());
+                            jsonObject.put("Token",newConfig.getToken());
                             HttpURLConnection con=null;
                             String path="http://" + getString(R.string.host) + "/android_connect/create_config.php";
                             try {

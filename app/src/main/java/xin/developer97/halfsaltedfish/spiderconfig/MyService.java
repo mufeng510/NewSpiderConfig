@@ -125,7 +125,7 @@ public class MyService extends Service {
                         tools.mes("已写入最新配置");
                         Log.i("MyServices","后台获取一次");
                         //唤醒
-                        if (!beWifi) {
+                        if (!tools.iswifi()) {
                             boolean isScreenOn = pm.isScreenOn();
                             if (isScreenOn) {
                                 if (sp.getBoolean("screenOff", false)) {
@@ -272,12 +272,8 @@ public class MyService extends Service {
                         break;
                     case BTN_5:
                         tools.collapseStatusBar();
-                        stopSelf();
                         onDestroy();
-//                        Intent intentoff = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-//                        intentoff.setData(Uri.parse("package:" + getPackageName()));
-//                        startActivity(intentoff);
-//                        System.exit(0);
+                        stopSelf();
                         break;
                     default:
                         break;
@@ -287,7 +283,7 @@ public class MyService extends Service {
     };
 
     private void openTiny(){
-        if (beWifi){
+        if (!tools.iswifi()){
             tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
         }else {
             switch (sp.getString("packgeName", "com.cqyapp.tinyproxy")) {

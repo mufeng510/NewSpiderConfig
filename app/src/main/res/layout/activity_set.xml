@@ -51,7 +51,7 @@
                     android:text="启用后台服务"
                     android:id="@+id/openService"/>
             <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:text="亮屏不唤醒，等待锁屏后唤醒(仅后台自动写入时)"
+                      android:text="亮屏不唤醒，等待下次后唤醒"
                       android:id="@+id/screenOff"
             />
             <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
