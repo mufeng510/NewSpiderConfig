@@ -45,7 +45,6 @@ public class Tools {
 
     private static Context context;
     private SharedPreferences sp;
-    public static String versionName_new = "查询失败";
 
     public void setContext(Context context) {
         this.context = context;

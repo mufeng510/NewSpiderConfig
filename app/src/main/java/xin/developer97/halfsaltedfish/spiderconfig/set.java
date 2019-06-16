@@ -100,7 +100,7 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
             versionName = "获取失败";
         }
         final String final_versionName = versionName;
-        About_software.setText("当前版本："+ final_versionName+"\n"+"最新版本：" + tools.versionName_new);
+        About_software.setText("当前版本："+ final_versionName+"\n"+"最新版本：" + MainActivity.versionName_new);
 
         //获取选中tiny
         tinyGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

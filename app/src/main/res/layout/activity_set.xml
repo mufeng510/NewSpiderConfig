@@ -158,67 +158,71 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/ipGroup"
                     android:orientation="vertical">
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="广东" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="广东"/>
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip1"
+                        android:text="157.255.173.182"
                 />
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip2"
-                        android:id="@+id/ip2"
+                        android:text="58.251.116.101"
                 />
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="上海" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="上海"/>
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip3"
-                        android:id="@+id/ip3"
+                        android:text="140.207.62.38"
                 />
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip4"
-                        android:id="@+id/ip4"
+                        android:text="210.22.247.196"
                 />
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="北京" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="北京"/>
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip5"
-                        android:id="@+id/ip5"
+                        android:text="111.206.25.206"
                 />
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip6"
-                        android:id="@+id/ip6"
+                        android:text="123.126.122.24"
                 />
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="天津" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="天津"/>
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip7"
-                        android:id="@+id/ip7"
+                        android:text="125.39.52.35"
                 />
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip8"
-                        android:id="@+id/ip8"/>
+                        android:text="220.194.95.178"
+                />
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip8"
-                        android:id="@+id/ip8"/>
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="重庆" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+                        android:text="111.161.111.158"
+
+                />
                 <RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/ip9"
-                        android:id="@+id/ip9"/>
+                        android:text="111.161.64.51"
+
+                />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="重庆"/>
+                <RadioButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="58.144.152.119"/>
+                <RadioButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="58.144.152.26"/>
 
 
             </RadioGroup>
