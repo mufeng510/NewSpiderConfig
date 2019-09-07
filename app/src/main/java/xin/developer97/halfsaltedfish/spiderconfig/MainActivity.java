@@ -1,6 +1,7 @@
 package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
     GestureDetector gd;
     Intent intent_service;
     static String versionName_new = "查询失败";
+    static android.os.CountDownTimer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
                         }
                         //获取最新版本号
                         HttpURLConnection con=null;
-                        String path="http://" + getApplicationContext().getString(R.string.host) +"/android_connect/get_version.php";
+                        String path="http://" + getApplicationContext().getString(R.string.host) +"/KingCardServices/get_version.php";
                         try {
                             URL url = new URL(path);
                             con= (HttpURLConnection) url.openConnection();
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         //控件
         final FloatingActionMenu fam1 = (FloatingActionMenu)findViewById(R.id.fam1);
         FloatingActionButton useTutorial = (FloatingActionButton)findViewById(R.id.useTutorial);
+        FloatingActionButton speedtest = (FloatingActionButton) findViewById(R.id.speedtest);
         FloatingActionButton get_packet = (FloatingActionButton)findViewById(R.id.get_packet);
         FloatingActionButton red =(FloatingActionButton)findViewById(R.id.red);
         ImageButton getIp = (ImageButton)findViewById(R.id.getIp);
@@ -244,6 +247,15 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
                 startActivity(intent);
             }
         });
+        // 网速测试
+        speedtest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fam1.collapse();
+                Intent intent = new Intent(MainActivity.this, WebActivity.class);
+                startActivity(intent);
+            }
+        });
         //        手动抓包
         get_packet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
             public void onClick(View v) {
                 fam1.collapse();
                 tools.copy("528207543");
-                tools.mes("已复制红包吗，请在搜索框中粘贴搜索");
+                Toast.makeText(MainActivity.this, "复制成功，请在支付宝中粘贴搜索", Toast.LENGTH_LONG).show();
                 tools.openApp("com.eg.android.AlipayGphone");
             }
         });
@@ -331,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
                             int usetime = tools.getDatePoor(time);
                             if ((120 - usetime) > 0) {
                                 tools.restartTimedTask();
-                                updataUI("生成于" + usetime + "分钟前 " + "大概剩余" + (120 - usetime) + "分钟",config);
+                                updataUI(120 - usetime,config);
                                 tools.mes("获取成功，大概剩余" + (120 - usetime) + "分钟");
                                 //写入
                                 try {
@@ -358,11 +370,27 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         ).start();
     }
     //更新ui
-    private void updataUI(final String time, final String config){
+    private void updataUI(final int time, final String config){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                updateTime.setText(time);
+                if(timer!=null)timer.cancel();
+                updateTime.setEnabled(false);
+                timer = new android.os.CountDownTimer(time*60000, 60000) {
+
+                    @SuppressLint("DefaultLocale")
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        updateTime.setText(String.format("剩余 %d 分钟", millisUntilFinished / 60000));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        updateTime.setEnabled(true);
+                        updateTime.setText("已过期");
+                    }
+                };
+                timer.start();
                 text.setText(config);
             }
         });

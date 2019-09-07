@@ -177,16 +177,16 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId){
                     case R.id.check_ip_use_ipip:
-                        editor.putString("ipPort","http://myip.ipip.net");
+                        editor.putString("ipPort","ipip");
                         break;
                     case R.id.check_ip_use_cip:
-                        editor.putString("ipPort","http://cip.cc");
+                        editor.putString("ipPort","cip");
                         break;
                     case R.id.check_use_ipcn:
-                        editor.putString("ipPort","https://ip.cn/index.php");
+                        editor.putString("ipPort","cz88");
                         break;
                     case R.id.check_use_pconline:
-                        editor.putString("ipPort","http://whois.pconline.com.cn/ip.jsp");
+                        editor.putString("ipPort","pconline");
                         break;
                     default:
                         break;
@@ -257,19 +257,19 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
                 break;
         }
         switch (sp.getString("ipPort","http://myip.ipip.net")){
-            case "http://myip.ipip.net":
+            case "ipip":
                 RadioButton radioButton = (RadioButton)findViewById(R.id.check_ip_use_ipip);
                 radioButton.setChecked(true);
                 break;
-            case "http://cip.cc":
+            case "cip":
                 RadioButton radioButton2 = (RadioButton)findViewById(R.id.check_ip_use_cip);
                 radioButton2.setChecked(true);
                 break;
-            case "https://ip.cn/index.php":
+            case "cz88":
                 RadioButton radioButton3 = (RadioButton)findViewById(R.id.check_use_ipcn);
                 radioButton3.setChecked(true);
                 break;
-            case "http://whois.pconline.com.cn/ip.jsp":
+            case "pconline":
                 RadioButton radioButton4 = (RadioButton)findViewById(R.id.check_use_pconline);
                 radioButton4.setChecked(true);
                 break;

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">王卡配置助手</string>
-    <string name="version">详细设置说明请查看群内科普\nwifi状态下仅写入最新配置，不会唤醒\n自动写入需要助手保持后台\n</string>
+    <string name="version">详细设置说明请查看群内科普\nwifi状态下仅写入最新配置，不会唤醒\n自动写入需要助手保持后台\n自动点击需要无障碍权限\n进程被杀后需要再次申请权限，觉得麻烦可关闭自动点击</string>
     <string name="write">TinyProxy</string>
     <string name="writeTy">TyProxy</string>
     <string name="writeTyFlow">TyFlow</string>

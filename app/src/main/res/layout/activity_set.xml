@@ -44,7 +44,7 @@
                     android:id="@+id/autoBack"
             />
             <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="自动点击后查询ip"
+                    android:text="自动查询ip"
                     android:id="@+id/autoCheckIp"
             />
             <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -105,11 +105,10 @@
                 />
                 <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
                              android:id="@+id/check_use_ipcn"
-                             android:text="ip.cn"
+                             android:text="纯真"
                 />
                 <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
                              android:id="@+id/check_use_pconline"
-                             android:enabled="false"
                              android:text="pconline"
                 />
             </RadioGroup>
@@ -164,11 +163,6 @@
                         android:layout_height="wrap_content"
                         android:text="157.255.173.182"
                 />
-                <RadioButton
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="58.251.116.101"
-                />
                 <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="上海"/>
                 <RadioButton
                         android:layout_width="match_parent"
@@ -196,11 +190,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="125.39.52.35"
-                />
-                <RadioButton
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="220.194.95.178"
                 />
                 <RadioButton
                         android:layout_width="match_parent"

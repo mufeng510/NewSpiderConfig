@@ -111,18 +111,24 @@ public class Tools {
     }
     //获取服务器配置
     public NewConfig receive() {
-        String response = executeHttpGet("http://" + context.getString(R.string.host) + "/android_connect/get_config.php");
-        if (response != "{\"success\":0,\"message\":\"No products found\"}") {
-            try {
-                JSONObject res = new JSONObject(response);
-                JSONArray config = new JSONArray(res.getString("configs"));
-                JSONObject con = config.getJSONObject(0);
-                NewConfig newConfig = new NewConfig(context,con.getString("Time"),con.getString("Guid"),con.getString("Token"));
+        String api = "http://helper.vtop.design/KingCardServices/get_config.php?id=1";
+        String response = executeHttpGet(api);
+        try {
+            JSONObject con = new JSONObject(response);
+            NewConfig newConfig = new NewConfig(context, con.getString("Time"), con.getString("Guid"), con.getString("Token"));
+            if (newConfig != null) {
                 return newConfig;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String response2 = "{" + executeHttpGet("http://pros.saomeng.club:666/QQ_dynamic/qqVer.php?getVer=1") + "}";
+        try {
+            JSONObject con2 = new JSONObject(response2);
+            NewConfig newConfig2 = new NewConfig(context, con2.getString("Time"), con2.getString("Guid"), con2.getString("Token"));
+            return newConfig2;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -360,6 +366,12 @@ public class Tools {
                             }
                         }else {
                             openApp("com.cqyapp.tinyproxy");
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            if (sp.getBoolean("autoCheckIp",false)) checkip();
                         }
                     }
                 }
@@ -418,6 +430,12 @@ public class Tools {
                             }
                         }else {
                             openApp("com.cqyapp.tinyproxy");
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            if (sp.getBoolean("autoCheckIp",false)) checkip();
                         }
                     }
                 }
@@ -440,36 +458,15 @@ public class Tools {
                 new Runnable() {
                     @Override
                     public void run() {
-                        String url_ip = sp.getString("ipPort","http://myip.ipip.net");
+                        String  url_head = "http://wkhelper.vtop.design/KingCardServices/ip.php?way=";
+                        String url_ip = url_head + sp.getString("ipPort","ipip");
                         String ip = "ip查询失败";
                         switch (sp.getString("ipWay","helper")){
                             case "helper":
                                 try {
                                     String result = executeHttpGet(url_ip);
-                                    Log.i("url_ip",url_ip);
-                                    Log.i("result",result);
                                     if(result.length()>2){
-                                        switch (url_ip){
-                                            case "http://myip.ipip.net":
-                                                ip = result;
-                                                break;
-                                            case "http://cip.cc":
-                                                String pattern = "<pre>([\\S\\s]+?)URL";
-                                                Pattern r = Pattern.compile(pattern);
-                                                Matcher m = r.matcher(result);
-                                                if(m.find()){
-                                                    ip = m.group(1);
-                                                }
-                                                break;
-                                            case "https://ip.cn/index.php":
-                                                String pattern2 = "所在地理位置：<code>(.+?)</code>";
-                                                Pattern r2 = Pattern.compile(pattern2);
-                                                Matcher m2 = r2.matcher(result);
-                                                if(m2.find()){
-                                                    ip = m2.group(1);
-                                                }
-                                                break;
-                                        }
+                                        ip = result;
                                     }
                                     Log.i("ip",ip);
                                     mes(ip);
@@ -479,8 +476,9 @@ public class Tools {
                                 }
                                 break;
                             case "browser":
-                                Uri uri = Uri.parse(url_ip);
+                                Uri uri = Uri.parse("http://helper.vtop.design/KingCardServices/checkip.html");
                                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 context.startActivity(intent);
                                 break;
                             case "not":
