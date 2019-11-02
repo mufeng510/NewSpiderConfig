@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class GetPacket extends AppCompatActivity implements  android.view.GestureDetector.OnGestureListener{
     CharSequence old;
-    Tools tools = new Tools();
+    Tools tools = Tools.getTools();
     SharedPreferences sp;
     GestureDetector gd;
 
@@ -86,7 +86,6 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
         final EditText guid = (EditText)findViewById(R.id.guid);
 
         old = guid.getText();
-        tools.setContext(getApplicationContext());
         ClipboardManager cm = (ClipboardManager) this.getSystemService(Context.CLIPBOARD_SERVICE);
         try {
             guid.setText(cm.getPrimaryClip().toString());
@@ -186,7 +185,7 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
                             jsonObject.put("Guid",newConfig.getGuid());
                             jsonObject.put("Token",newConfig.getToken());
                             HttpURLConnection con=null;
-                            String path="http://" + getString(R.string.host) + "/android_connect/create_config.php";
+                            String path="http://" + getString(R.string.host) + "/KingCardServices/create_config.php?id=1";
                             try {
                                 URL url = new URL(path);
                                 con= (HttpURLConnection) url.openConnection();

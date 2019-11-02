@@ -5,9 +5,9 @@ android {
     defaultConfig {
         applicationId "xin.developer97.spiderconfig"
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 51
-        versionName "5.3.1"
+        targetSdkVersion 28
+        versionCode 54
+        versionName "5.3.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -33,16 +33,11 @@ android {
 //}
 dependencies {
     implementation 'com.github.didikee:AndroidDonate:0.1.0'
-}
-
-dependencies {
     implementation 'com.android.support.constraint:constraint-layout:+'
-}
-
-dependencies {
     implementation 'com.ddz.materialdesign:FloatingActionButton:1.0.4'
-}
-
-dependencies {
     implementation 'com.android.support.constraint:constraint-layout:+'
+    implementation "com.github.tamsiree.RxTool:RxKit:2.3.9"
+    implementation 'com.hjq:xtoast:2.6'
+    implementation 'com.hjq:toast:8.0'
+    implementation 'com.hjq:xxpermissions:6.0'
 }

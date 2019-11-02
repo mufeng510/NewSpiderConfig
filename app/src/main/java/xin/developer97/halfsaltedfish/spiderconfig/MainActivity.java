@@ -16,6 +16,11 @@ import android.view.*;
 import android.widget.*;
 import com.ddz.floatingactionbutton.FloatingActionButton;
 import com.ddz.floatingactionbutton.FloatingActionMenu;
+import com.hjq.permissions.OnPermission;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
+import com.hjq.toast.ToastUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,10 +33,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements  android.view.GestureDetector.OnGestureListener{
 
-    private Tools tools = new Tools();
-    TextView updateTime,text;
+    private Tools tools;
+    static TextView updateTime;
+    static TextView text;
     SharedPreferences sp;
-    private Handler mHandler;
+    private static Handler mHandler;
     GestureDetector gd;
     Intent intent_service;
     static String versionName_new = "查询失败";
@@ -43,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         //去除标题栏
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-        tools.setContext(getApplicationContext());
+        tools = Tools.getTools();
         sp = getSharedPreferences("mysetting.txt", Context.MODE_PRIVATE);
         intent_service = new Intent(this, MyService.class);
         tools.hideInRecents();
@@ -63,16 +69,16 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         // 声明一个集合，在后面的代码中用来存储用户拒绝授权的权
         List<String> mPermissionList = new ArrayList<>();
 
-        mPermissionList.clear();
-        for (int i = 0; i < permissions.length; i++) {
-            if (ContextCompat.checkSelfPermission(MainActivity.this, permissions[i]) != PackageManager.PERMISSION_GRANTED) {
-                mPermissionList.add(permissions[i]);
-            }
-        }
-        if (!mPermissionList.isEmpty()) {//未授予的权限为空，表示都授予了
-            String[] permission = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
-            ActivityCompat.requestPermissions(MainActivity.this, permission, 1);
-        }
+//        mPermissionList.clear();
+//        for (int i = 0; i < permissions.length; i++) {
+//            if (ContextCompat.checkSelfPermission(MainActivity.this, permissions[i]) != PackageManager.PERMISSION_GRANTED) {
+//                mPermissionList.add(permissions[i]);
+//            }
+//        }
+//        if (!mPermissionList.isEmpty()) {//未授予的权限为空，表示都授予了
+//            String[] permission = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
+//            ActivityCompat.requestPermissions(MainActivity.this, permission, 1);
+//        }
         //自定义壁纸
         RelativeLayout linearLayout = (RelativeLayout)findViewById(R.id.layoutmain);
         if (sp.getString("backpath",null)!= null){
@@ -191,16 +197,17 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         updateTime = (TextView)findViewById(R.id.updateTime);
         text = (TextView)findViewById(R.id.text);
 
-
+        View view = this.getWindow().getDecorView();
         if (!sp.getBoolean("doset",false)){
             AlertDialog alert = null;
             AlertDialog.Builder builder = null;
             builder = new AlertDialog.Builder(MainActivity.this);
             alert = builder.setTitle("声明")
-                    .setMessage("请认真看一遍视频教程\n\n本软件完全免费，仅供娱乐使用，切勿用于非法用途！造成的一切后果与开发者无关！")
-                    .setPositiveButton("看教程", new DialogInterface.OnClickListener() {
+                    .setMessage("点击确定申请必要的权限\n存储权限:用于写入模式\n通知权限:用于显示通知栏快捷工具\n悬浮窗权限:用于消息提示\n请认真看一遍视频教程\n\n本软件完全免费，仅供娱乐使用，切勿用于非法用途！造成的一切后果与开发者无关！")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            requestPermission(view);
                             String directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tiny";
                             String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf";
                             File dir = new File(directory);
@@ -213,30 +220,13 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
                                     e.printStackTrace();
                                 }
                             }
-                            new Thread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            NewConfig newConfig = tools.getConfig();
-                                            if (newConfig != null) {
-                                                final String config = newConfig.getConfig();
-                                                //写入
-                                                try {
-                                                    tools.savaFileToSD(sp.getString("path",Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf"),config.toString());
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                    }
-                            ).start();
-                            Uri uri = Uri.parse("http://dd.ma/xoLS9iwS");
-                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                            startActivity(intent);
                         }
                     }).create();             //创建AlertDialog对象
             alert.show();
-        }
+        }else isHasPermission(view);
+
+
+        if(!tools.isNotificationEnabled())ToastUtils.show("为了更好的体验，建议开启通知栏权限");
 
         //使用教程
         useTutorial.setOnClickListener(new View.OnClickListener() {
@@ -286,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         getweb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getConfig();
+                tools.getConfig();
             }
         });
         //跳转小火箭
@@ -330,47 +320,8 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
             }
         });
     }
-
-    private void getConfig(){
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        NewConfig newConfig = tools.getConfig();
-                        if (newConfig != null) {
-                            String time = newConfig.getTime();
-                            final String config = newConfig.getConfig();
-                            int usetime = tools.getDatePoor(time);
-                            if ((120 - usetime) > 0) {
-                                tools.restartTimedTask();
-                                updataUI(120 - usetime,config);
-                                tools.mes("获取成功，大概剩余" + (120 - usetime) + "分钟");
-                                //写入
-                                try {
-                                    tools.savaFileToSD(sp.getString("path",Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf"),config.toString());
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    tools.mes("写入失败");
-                                }
-                                switch (sp.getString("packgeName","com.cqyapp.tinyproxy")){
-                                    case "com.cqyapp.tinyproxy":
-                                        Log.i("Main","case");
-                                        tools.autopoint();
-                                        break;
-                                    default:
-                                        Log.i("Main","default");
-                                        tools.openApp(sp.getString("packgeName","com.cqyapp.tinyproxy"));
-                                        break;
-                                }
-                            } else tools.mes("服务器最新配置已失效，请手动抓包");
-                        } else
-                            tools.mes("获取失败");
-                    }
-                }
-        ).start();
-    }
     //更新ui
-    private void updataUI(final int time, final String config){
+    public static void updataUI(final int time, final String config){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -437,7 +388,16 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         if(beginX-endX>minMove&&Math.abs(velocityX)>minVelocity){   //左滑
             Intent intent = new Intent(MainActivity.this, GetPacket.class);
             startActivity(intent);
-//            Toast.makeText(this,velocityX+"左滑",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,velocityX+"左滑",Toast.LENGTH_SHORT).show();
+        }
+        if(beginY-endY>minMove&&Math.abs(velocityY)>minVelocity){   //上滑
+            CharSequence config = text.getText();
+            if(config.length()==0) tools.mes("没有模式信息");
+            else {
+                tools.copy(config);
+                Toast.makeText(this,"已复制模式",Toast.LENGTH_SHORT).show();
+            };
+            //Toast.makeText(this,velocityX+"上滑",Toast.LENGTH_SHORT).show();
         }
 //        else if(endX-beginX>minMove&&Math.abs(velocityX)>minVelocity){   //右滑
 //            Toast.makeText(this,velocityX+"右滑",Toast.LENGTH_SHORT).show();
@@ -467,5 +427,52 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         });
         dialog.show();
 
+    }
+    public void requestPermission(View view) {
+        XXPermissions.with(this)
+                // 可设置被拒绝后继续申请，直到用户授权或者永久拒绝
+                .constantRequest()
+                // 不指定权限则自动获取清单中的危险权限
+                .permission(Permission.Group.STORAGE)
+                .permission(Permission.SYSTEM_ALERT_WINDOW)
+                .request(new OnPermission() {
+
+                    @Override
+                    public void hasPermission(List<String> granted, boolean isAll) {
+                        if (isAll) {
+                            ToastUtils.show("获取权限成功");
+                        }else {
+                            ToastUtils.show("获取权限成功，部分权限未正常授予");
+                        }
+                    }
+
+                    @Override
+                    public void noPermission(List<String> denied, boolean quick) {
+                        if(quick) {
+                            ToastUtils.show("被永久拒绝授权，请手动授予权限");
+                            //如果是被永久拒绝就跳转到应用权限系统设置页面
+                            XXPermissions.gotoPermissionSettings(MainActivity.this);
+                        }else {
+                            ToastUtils.show("获取权限失败");
+                        }
+                    }
+                });
+    }
+
+    public void isHasPermission(View view) {
+        if (XXPermissions.isHasPermission(MainActivity.this, Permission.Group.STORAGE)) {
+        }else {
+            ToastUtils.show("还没有获取到权限或者部分权限未授予,请授予");
+            requestPermission(view);
+        }
+        if (XXPermissions.isHasPermission(MainActivity.this, Permission.SYSTEM_ALERT_WINDOW)) {
+        }else {
+            ToastUtils.show("还没有获取到悬浮窗权限,请授予");
+            requestPermission(view);
+        }
+    }
+
+    public void gotoPermissionSettings(View view) {
+        XXPermissions.gotoPermissionSettings(MainActivity.this);
     }
 }

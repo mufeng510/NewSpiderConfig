@@ -2,20 +2,20 @@ package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.annotation.TargetApi;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
-import java.util.Iterator;
 import java.util.List;
-
-import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED;
-import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_LONG_CLICKED;
 
 /**
  * Created by minggo on 16/5/30.
@@ -95,7 +95,7 @@ public class ClickService extends AccessibilityService {
     }
 
     //执行点击
-    private void performClick() {
+    private void performClick(String resourceId) {
 
         Log.i("mService","点击执行");
         try {
@@ -115,20 +115,24 @@ public class ClickService extends AccessibilityService {
     }
 
     //执行点击
-    private void performClick(String resourceId) {
-
-        Log.i("mService","点击执行");
-        try {
-            AccessibilityNodeInfo nodeInfo = this.getRootInActiveWindow();
-            AccessibilityNodeInfo targetNode = null;
-            targetNode = findNodeInfosById(nodeInfo,"com.cqyapp.tinyproxy:id/"+resourceId);
-            if (targetNode.isClickable()) {
-                targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            }
-        }catch (Exception e){
-
-        }
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//    private void performClick(String resourceId) {
+//
+//        Log.i("mService","点击执行");
+//        try {
+//            List<AccessibilityWindowInfo> windows = getWindows();
+//            for (int i=0;i<windows.size();i++){
+//                AccessibilityNodeInfo nodeInfo = windows.get(i).getRoot();
+//                AccessibilityNodeInfo targetNode = null;
+//                targetNode = findNodeInfosById(nodeInfo,"com.cqyapp.tinyproxy:id/"+resourceId);
+//                if (targetNode.isClickable()) {
+//                    targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//                }
+//            }
+//        }catch (Exception e){
+//
+//        }
+//    }
 
 
     //通过id查找

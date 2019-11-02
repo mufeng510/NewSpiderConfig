@@ -3,11 +3,14 @@ package xin.developer97.halfsaltedfish.spiderconfig;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.AppOpsManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.*;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -17,14 +20,24 @@ import android.net.Uri;
 import android.os.*;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.hjq.toast.ToastUtils;
+import com.hjq.xtoast.OnClickListener;
+import com.hjq.xtoast.XToast;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.NetworkInterface;
@@ -40,23 +53,31 @@ import java.util.regex.Pattern;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.ALARM_SERVICE;
+import static android.os.Looper.getMainLooper;
 
 public class Tools {
 
     private static Context context;
     private SharedPreferences sp;
+    PendingIntent pi;
+    AlarmManager alarm;
+    private static Handler mHandler;
 
-    public void setContext(Context context) {
-        this.context = context;
+    private static Tools tools = new Tools();
+    public static Tools getTools() {
+        return tools;
+    }
+    private Tools() {
+        this.context = MyApplication.getInstance().getApplicationContext();
         sp = context.getSharedPreferences("mysetting.txt", Context.MODE_PRIVATE);
-    }
-
-    public Tools() {
-    }
-
-    public Tools(Context Context) {
-        super();
-        this.context = Context;
+        pi = PendingIntent.getBroadcast(context, 0, new Intent("TimedTask"), 0);
+        alarm = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        mHandler = new Handler(getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+            }
+        };
     }
 
     //往SD卡写入文件的方法
@@ -93,19 +114,45 @@ public class Tools {
     }
 
     //获取服务器配置
-    public NewConfig getConfig() {
+    public void getConfig() {
         if (isNetworkConnected()) {
             try {
-                NewConfig newConfig = receive();
-                return newConfig;
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                NewConfig newConfig = receive();
+                                if (newConfig != null) {
+                                    String time = newConfig.getTime();
+                                    final String config = newConfig.getConfig();
+                                    int usetime = getDatePoor(time);
+                                    if ((120 - usetime) > 0) {
+                                        restartTimedTask();
+                                        mes("获取成功，大概剩余" + (120 - usetime) + "分钟");
+                                        try {
+                                            MainActivity.updataUI(120-usetime,config);
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                        //写入
+                                        try {
+                                            savaFileToSD(sp.getString("path", Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf"), config);
+                                        } catch (Exception e) {
+                                            mes("写入失败");
+                                        }
+                                        openTiny();
+                                    } else mes("服务器最新配置已失效，请手动抓包");
+                                } else
+                                    mes("获取失败");
+                            }
+                        }
+                ).start();
             } catch (Exception e) {
                 e.printStackTrace();
                 mes("获取失败,请检查网络");
-                return null;
             }
         } else {
             mes("请检查网络连接");
-            return null;
         }
 
     }
@@ -210,25 +257,29 @@ public class Tools {
         Boolean result = info.getType() == ConnectivityManager.TYPE_WIFI;
         MyService.beWifi = result;
         return result;
-//        if (info == null) {
-//            return false;
-//        }
+    }
+    //打开tiny软件
+    public void openTiny(){
+        switch (sp.getString("packgeName", "com.cqyapp.tinyproxy")) {
+            case "com.cqyapp.tinyproxy":
+                tools.autopoint();
+                break;
+            default:
+                tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
+                break;
+        }
     }
     //发送消息
     public void mes(final String text){
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable(){
-            public void run(){
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    //发送长显示消息
-    public void longMes(final String text){
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable(){
-            public void run(){
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                new XToast(MyApplication.getInstance()) // 传入 Application 对象表示设置成全局的
+                        .setDuration(2000)
+                        .setView(ToastUtils.getToast().getView())
+                        .setAnimStyle(android.R.style.Animation_Translucent)
+                        .setText(android.R.id.message, text)
+                        .show();
             }
         });
     }
@@ -254,6 +305,33 @@ public class Tools {
             collapse.invoke(statusBarManager);
         } catch (Exception localException) {
             localException.printStackTrace();
+        }
+    }
+    /**
+     * 检查通知栏权限有没有开启
+     * 参考 SupportCompat 包中的方法： NotificationManagerCompat.from(context).areNotificationsEnabled();
+     */
+    public static boolean isNotificationEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).areNotificationsEnabled();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            ApplicationInfo appInfo = context.getApplicationInfo();
+            String pkg = context.getApplicationContext().getPackageName();
+            int uid = appInfo.uid;
+
+            try {
+                Class<?> appOpsClass = Class.forName(AppOpsManager.class.getName());
+                Method checkOpNoThrowMethod = appOpsClass.getMethod("checkOpNoThrow", Integer.TYPE, Integer.TYPE, String.class);
+                Field opPostNotificationValue = appOpsClass.getDeclaredField("OP_POST_NOTIFICATION");
+                int value = (Integer) opPostNotificationValue.get(Integer.class);
+                return ((int) checkOpNoThrowMethod.invoke(appOps, value, uid, pkg) == AppOpsManager.MODE_ALLOWED);
+            } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException
+                    | InvocationTargetException | IllegalAccessException | RuntimeException ignored) {
+                return true;
+            }
+        } else {
+            return true;
         }
     }
 
@@ -355,7 +433,7 @@ public class Tools {
                                         }
                                     },2000);
                                     Thread.sleep(3500);
-                                    if (sp.getBoolean("autoCheckIp",false)) checkip();
+                                    if (sp.getBoolean("autoCheckIp",true)) checkip();
                                 } else {
                                     Log.i("tool","未运行");
                                     openAccessibilityServiceSettings();
@@ -371,7 +449,7 @@ public class Tools {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            if (sp.getBoolean("autoCheckIp",false)) checkip();
+                            if (sp.getBoolean("autoCheckIp",true)) checkip();
                         }
                     }
                 }
@@ -420,7 +498,7 @@ public class Tools {
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
-                                    if (sp.getBoolean("autoCheckIp",false)) checkip();
+                                    if (sp.getBoolean("autoCheckIp",true)) checkip();
                                 } else {
                                     openAccessibilityServiceSettings();
                                 }
@@ -435,7 +513,7 @@ public class Tools {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            if (sp.getBoolean("autoCheckIp",false)) checkip();
+                            if (sp.getBoolean("autoCheckIp",true)) checkip();
                         }
                     }
                 }
@@ -444,10 +522,10 @@ public class Tools {
     /** 打开辅助服务的设置*/
     public void openAccessibilityServiceSettings() {
         try {
+            mes("找[王卡配置助手],然后开启服务\n无需本功能请关闭自动点击");
             Intent intent = new Intent("android.settings.ACCESSIBILITY_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
-            longMes("找[王卡配置助手],然后开启服务\n无需本功能请关闭自动点击");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -474,6 +552,7 @@ public class Tools {
                                     e.printStackTrace();
                                     mes(ip);
                                 }
+                                Log.i("ip",ip);
                                 break;
                             case "browser":
                                 Uri uri = Uri.parse("http://helper.vtop.design/KingCardServices/checkip.html");
@@ -550,16 +629,12 @@ public class Tools {
     }
     //启动定时任务
     public void openTimedTask(){
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent("TimedTask"), 0);
-        AlarmManager manager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         int anHour = sp.getInt("autotime", 60) * 60 * 1000;
         long triggerAtTime = SystemClock.elapsedRealtime() + anHour;
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+        alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
     }
     //关闭定时任务
     public void closeTimedTask(){
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent("TimedTask"), 0);
-        AlarmManager alarm=(AlarmManager)context.getSystemService(ALARM_SERVICE);
         try {
             alarm.cancel(pi);
         }catch (Exception e){
@@ -610,5 +685,28 @@ public class Tools {
             }
         }
         return false;
+    }
+    //通知权限跳转
+    public void isHasNotifications(){
+        boolean isOpened = NotificationManagerCompat.from(context).areNotificationsEnabled();
+        if(!isOpened){
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    new XToast(MyApplication.getInstance()) // 传入 Application 对象表示设置成全局的
+                            .setDuration(6000)
+                            .setView(ToastUtils.getToast().getView())
+                            .setAnimStyle(android.R.style.Animation_Translucent)
+                            .setText(android.R.id.message, "开启通知权限，当然不开启并不会影响自动获取服务")
+                            .show();
+                }
+            });
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Uri uri = Uri.fromParts("package", MyApplication.getInstance().getPackageName(), null);
+            intent.setData(uri);
+            context.startActivity(intent);
+        }
     }
 }

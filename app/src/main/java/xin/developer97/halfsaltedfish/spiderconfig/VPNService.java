@@ -23,7 +23,7 @@ public class VPNService extends VpnService implements Runnable {
     private static final String TAG = "VPNService";
 
 
-    Tools tools = new Tools();
+    Tools tools = Tools.getTools();
 
     public VPNService() {
     }
@@ -31,7 +31,6 @@ public class VPNService extends VpnService implements Runnable {
     @Override
     public void onCreate() {
         super.onCreate();
-        tools.setContext(getApplicationContext());
         vpnThread = new Thread(this, "VPNService");
         vpnThread.start();
     }

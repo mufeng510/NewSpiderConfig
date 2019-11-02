@@ -30,7 +30,7 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
     private String packgeName, path, backpath;
     EditText autotime, ip, packge, confPath;
     Switch hide, openService, screenOff, changeOpen,autoClick, autoBack,autoCheckIp;
-    Tools tools = new Tools();
+    Tools tools = Tools.getTools();
     SharedPreferences.Editor editor;
 
     @Override
@@ -87,7 +87,6 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
 
         Button background = (Button) findViewById(R.id.background);
         Button setting = (Button) findViewById(R.id.setting);
-        tools.setContext(getApplicationContext());
 
         //关于
         final TextView About_software = findViewById(R.id.About_software);
@@ -235,7 +234,7 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         changeOpen.setChecked(sp.getBoolean("changeOpen", false));
         autoClick.setChecked((sp.getBoolean("autoClick",true)));
         autoBack.setChecked(sp.getBoolean("autoBack", false));
-        autoCheckIp.setChecked(sp.getBoolean("autoCheckIp", false));
+        autoCheckIp.setChecked(sp.getBoolean("autoCheckIp", true));
 
         autotime.setText(sp.getInt("autotime", 60) + "");
         packge.setText(sp.getString("packgeName", ""));

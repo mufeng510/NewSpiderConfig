@@ -16,7 +16,7 @@ public class MyService extends Service {
     public static Boolean notFirstRun = false;
     private ConnectivityManager mConnectivityManager;
     private NetworkInfo netInfo;
-    Tools tools = new Tools();
+    Tools tools = Tools.getTools();
     SharedPreferences sp;
     public static NotificationManager notificationManager;
     private String notificationId = "channelId";
@@ -80,7 +80,6 @@ public class MyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        tools.setContext(getApplicationContext());
         sp = getSharedPreferences("mysetting.txt", Context.MODE_PRIVATE);
         pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -119,8 +118,14 @@ public class MyService extends Service {
                 public void run() {
                     try {
                         String path = sp.getString("path", Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf");
-                        CharSequence config = tools.receive().getConfig();//这是定时所执行的任务
-                        tools.savaFileToSD(path, config.toString());
+                        NewConfig newConfig = tools.receive();
+                        String config =newConfig .getConfig().toString();//这是定时所执行的任务
+                        try {
+                            MainActivity.updataUI(120-tools.getDatePoor(newConfig.getTime()),config);
+                        }catch (Exception e){
+
+                        }
+                        tools.savaFileToSD(path, config);
                         hasGet = true;
                         tools.mes("已写入最新配置");
                         Log.i("MyServices","后台获取一次");
@@ -131,7 +136,7 @@ public class MyService extends Service {
                                 if (sp.getBoolean("screenOff", false)) {
                                     needOpenTiny = true;
                                 } else {
-                                    openTiny();
+                                    tools.openTiny();
                                 }
                             } else needOpenTiny = true;
                         }
@@ -179,7 +184,7 @@ public class MyService extends Service {
                 if (sp.getBoolean("screenOff", false)) {
                     if (needOpenTiny){
                         hasGet = false;
-                        openTiny();
+                        tools.openTiny();
                     }
                 }
             }
@@ -198,18 +203,16 @@ public class MyService extends Service {
                 /////WiFi网络
                 if (!beWifi) {
                     beWifi = true;
-                    if (!notFirstRun){
-                        tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
-                    }
+                    if(sp.getBoolean("changeOpen",false)) tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
                 }
             } else {
                 ////////网络断开
                 if (beWifi) {
                     beWifi = false;
                     if(isScreenOn){
-                        openTiny();
+                        if(sp.getBoolean("changeOpen",false)) tools.openTiny();
                     }else {
-                        needOpenTiny = true;
+                        if(sp.getBoolean("changeOpen",false)) needOpenTiny = true;
                     }
                 }
             }
@@ -234,33 +237,7 @@ public class MyService extends Service {
                         break;
                     case BTN_2:
                         tools.collapseStatusBar();
-                        new Thread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        NewConfig newConfig = tools.getConfig();
-                                        if (newConfig != null) {
-                                            String time = newConfig.getTime();
-                                            final String config = newConfig.getConfig();
-                                            int usetime = tools.getDatePoor(time);
-                                            if ((120 - usetime) > 0) {
-                                                tools.restartTimedTask();
-                                                tools.mes("获取成功，大概剩余" + (120 - usetime) + "分钟");
-                                                //写入
-                                                String path = sp.getString("path", Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf");
-                                                try {
-                                                    tools.savaFileToSD(path, config);
-                                                    tools.mes("写入成功");
-                                                } catch (Exception e) {
-                                                    tools.mes("写入失败");
-                                                }
-                                                openTiny();
-                                            } else tools.mes("服务器最新配置已失效，请手动抓包");
-                                        } else
-                                            tools.mes("获取失败");
-                                    }
-                                }
-                        ).start();
+                        tools.getConfig();
                         break;
                     case BTN_3:
                         tools.collapseStatusBar();
@@ -282,18 +259,4 @@ public class MyService extends Service {
         }
     };
 
-    private void openTiny(){
-        if (!tools.iswifi()){
-            tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
-        }else {
-            switch (sp.getString("packgeName", "com.cqyapp.tinyproxy")) {
-                case "com.cqyapp.tinyproxy":
-                    tools.autopoint();
-                    break;
-                default:
-                    tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
-                    break;
-            }
-        }
-    }
 }
