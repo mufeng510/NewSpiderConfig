@@ -119,7 +119,7 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
                     showDialog(newConfig);
                     Toast.makeText(GetPacket.this, "生成成功", Toast.LENGTH_SHORT).show();
                     if(sp.getBoolean("autoOpen",true)){
-                        String path = sp.getString("path",Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf");
+                        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + sp.getString("path","/" + "tiny/王卡配置.conf");
                         String name = sp.getString("packgeName","com.cqyapp.tinyproxy");
                         write(path,config);
                         open(name);

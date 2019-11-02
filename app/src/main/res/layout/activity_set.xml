@@ -21,7 +21,8 @@
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                       android:shadowColor="#FF000000" android:shadowRadius="1.0"
-                      android:id="@+id/About_software" android:textSize="20dp"/>
+                      android:id="@+id/About_software" android:textSize="20dp"
+                />
             <View
                     android:layout_width="match_parent"
                     android:layout_height="1px"
@@ -36,12 +37,6 @@
             <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:text="开启自动点击"
                     android:id="@+id/autoClick"
-            />
-            <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="自动点击后返回上级应用"
-                    android:enabled="false"
-                    android:checked="false"
-                    android:id="@+id/autoBack"
             />
             <Switch android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:text="自动查询ip"
@@ -73,75 +68,22 @@
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:shadowColor="#FF000000" android:shadowRadius="1.0"
                     android:text="请选择ip查询方式"
             />
-            <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:id="@+id/ipWays">
-                <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content"
-                             android:id="@+id/check_ip_by_helper"
-                             android:text="通过助手查询，不能放行助手"
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="助手"
+                android:id="@+id/ipWays"
                 />
-                <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content"
-                             android:id="@+id/check_ip_by_browser"
-                             android:text="通过其他浏览器查询，请勿使用QQ浏览器"
-                />
-                <RadioButton android:layout_width="match_parent" android:layout_height="wrap_content"
-                             android:id="@+id/not_check_ip"
-                             android:text="不查询"
-                />
-            </RadioGroup>
             <TextView
                     android:layout_width="wrap_content" android:layout_height="wrap_content" android:shadowColor="#FF000000" android:shadowRadius="1.0"
                     android:text="请选择ip查询接口"
             />
-            <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:id="@+id/ipPorts">
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:id="@+id/check_ip_use_ipip"
-                             android:text="ipip"
-                />
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:id="@+id/check_ip_use_cip"
-                             android:text="cip"
-                />
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:id="@+id/check_use_ipcn"
-                             android:text="纯真"
-                />
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:id="@+id/check_use_pconline"
-                             android:text="pconline"
-                />
-            </RadioGroup>
+            <Button android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ipip"
+                android:id="@+id/ipPorts"/>
 
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="请选择你使用的tiny软件" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
-            <RadioGroup
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tinyGroup"
-                        android:orientation="horizontal">
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                          android:text="@string/write"
-                          android:id="@+id/TinyProxy"
-                />
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                          android:text="@string/writeTy"
-                          android:id="@+id/TyProxy"
-                />
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                          android:text="@string/writeTyFlow"
-                          android:id="@+id/TyFlow"
-                />
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:text="@string/writeVpnProxy"
-                             android:id="@+id/VpnProxy"
-                />
-            </RadioGroup>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="包名:" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
-                <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/packge"/>
-            </LinearLayout>
-
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="配置文件:" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="配置文件:/内置存储" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
             <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/confPath"/>
 
 

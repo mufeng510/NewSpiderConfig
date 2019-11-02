@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:layout_width="wrap_content">
+    <item
+        android:title="广东" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:title="157.255.173.182" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:title="上海" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:title="140.207.62.38" />
+                <item android:title="210.22.247.196" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:title="北京" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:title="111.206.25.206" />
+                <item android:title="123.126.122.24" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:title="天津" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:title="125.39.52.35" />
+                <item android:title="111.161.111.158" />
+                <item android:title="111.161.64.51" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:title="重庆" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:title="58.144.152.119" />
+                <item android:title="58.144.152.26" />
+            </group>
+        </menu>
+    </item>
+</menu>

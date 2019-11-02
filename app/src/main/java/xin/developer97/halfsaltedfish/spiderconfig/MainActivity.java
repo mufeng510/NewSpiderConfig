@@ -2,18 +2,28 @@ package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.*;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.*;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.*;
-import android.widget.*;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.ddz.floatingactionbutton.FloatingActionButton;
 import com.ddz.floatingactionbutton.FloatingActionMenu;
 import com.hjq.permissions.OnPermission;
@@ -24,21 +34,24 @@ import com.hjq.toast.ToastUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements  android.view.GestureDetector.OnGestureListener{
+public class MainActivity extends AppCompatActivity {
 
     private Tools tools;
     static TextView updateTime;
     static TextView text;
     SharedPreferences sp;
     private static Handler mHandler;
-    GestureDetector gd;
     Intent intent_service;
     static String versionName_new = "查询失败";
     static android.os.CountDownTimer timer;
@@ -64,21 +77,9 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.FOREGROUND_SERVICE
         };
-        //创建手势检测器
-        gd = new GestureDetector(this,this);
         // 声明一个集合，在后面的代码中用来存储用户拒绝授权的权
         List<String> mPermissionList = new ArrayList<>();
 
-//        mPermissionList.clear();
-//        for (int i = 0; i < permissions.length; i++) {
-//            if (ContextCompat.checkSelfPermission(MainActivity.this, permissions[i]) != PackageManager.PERMISSION_GRANTED) {
-//                mPermissionList.add(permissions[i]);
-//            }
-//        }
-//        if (!mPermissionList.isEmpty()) {//未授予的权限为空，表示都授予了
-//            String[] permission = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
-//            ActivityCompat.requestPermissions(MainActivity.this, permission, 1);
-//        }
         //自定义壁纸
         RelativeLayout linearLayout = (RelativeLayout)findViewById(R.id.layoutmain);
         if (sp.getString("backpath",null)!= null){
@@ -283,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         toTiny.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tools.openApp(sp.getString("packgeName","com.cqyapp.tinyproxy"));
+                tools.openApp("com.cqyapp.tinyproxy");
             }
         });
         //设置
@@ -347,68 +348,9 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
         });
     }
     public boolean onTouchEvent(MotionEvent event) {
-        gd.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        float minMove = 120;         //最小滑动距离
-        float minVelocity = 0;      //最小滑动速度
-        float beginX = e1.getX();
-        float endX = e2.getX();
-        float beginY = e1.getY();
-        float endY = e2.getY();
-
-        if(beginX-endX>minMove&&Math.abs(velocityX)>minVelocity){   //左滑
-            Intent intent = new Intent(MainActivity.this, GetPacket.class);
-            startActivity(intent);
-            //Toast.makeText(this,velocityX+"左滑",Toast.LENGTH_SHORT).show();
-        }
-        if(beginY-endY>minMove&&Math.abs(velocityY)>minVelocity){   //上滑
-            CharSequence config = text.getText();
-            if(config.length()==0) tools.mes("没有模式信息");
-            else {
-                tools.copy(config);
-                Toast.makeText(this,"已复制模式",Toast.LENGTH_SHORT).show();
-            };
-            //Toast.makeText(this,velocityX+"上滑",Toast.LENGTH_SHORT).show();
-        }
-//        else if(endX-beginX>minMove&&Math.abs(velocityX)>minVelocity){   //右滑
-//            Toast.makeText(this,velocityX+"右滑",Toast.LENGTH_SHORT).show();
-//        }else if(beginY-endY>minMove&&Math.abs(velocityY)>minVelocity){   //上滑
-//            Toast.makeText(this,velocityX+"上滑",Toast.LENGTH_SHORT).show();
-//        }else if(endY-beginY>minMove&&Math.abs(velocityY)>minVelocity){   //下滑
-//            Toast.makeText(this,velocityX+"下滑",Toast.LENGTH_SHORT).show();
-//        }
-
-        return false;
-    }
     @Override
     public void onBackPressed() {
 
@@ -422,7 +364,6 @@ public class MainActivity extends AppCompatActivity implements  android.view.Ges
             public void onClick(DialogInterface dialog, int which) {
                 stopService(intent_service);
                 finish();
-//                System.exit(0);
             }
         });
         dialog.show();

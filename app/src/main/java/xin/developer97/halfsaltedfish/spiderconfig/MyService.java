@@ -1,13 +1,22 @@
 package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.annotation.SuppressLint;
-import android.app.*;
-import android.content.*;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.*;
-import android.provider.Settings;
+import android.os.Build;
+import android.os.Environment;
+import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -95,8 +104,6 @@ public class MyService extends Service {
 
         IntentFilter myNetworkFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         MyService.this.registerReceiver(MyNetworkReceiver, myNetworkFilter);
-        if (sp.getBoolean("changeOpen", false)) {
-        }
         //监听通知栏
         IntentFilter intentFilter = new IntentFilter(ACTION_BUTTON);
         MyService.this.registerReceiver(receiver, intentFilter);
@@ -117,7 +124,7 @@ public class MyService extends Service {
                 @Override
                 public void run() {
                     try {
-                        String path = sp.getString("path", Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf");
+                        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + sp.getString("path", "/tiny/王卡配置.conf");
                         NewConfig newConfig = tools.receive();
                         String config =newConfig .getConfig().toString();//这是定时所执行的任务
                         try {
@@ -203,7 +210,7 @@ public class MyService extends Service {
                 /////WiFi网络
                 if (!beWifi) {
                     beWifi = true;
-                    if(sp.getBoolean("changeOpen",false)) tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
+                    if(sp.getBoolean("changeOpen",false)) tools.openApp("com.cqyapp.tinyproxy");
                 }
             } else {
                 ////////网络断开
@@ -241,7 +248,7 @@ public class MyService extends Service {
                         break;
                     case BTN_3:
                         tools.collapseStatusBar();
-                        tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
+                        tools.openApp("com.cqyapp.tinyproxy");
                         break;
                     case BTN_4:
                         tools.collapseStatusBar();

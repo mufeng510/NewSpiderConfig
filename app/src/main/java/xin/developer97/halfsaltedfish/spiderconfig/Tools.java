@@ -6,10 +6,13 @@ import android.app.AlarmManager;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
-import android.content.*;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.ComponentName;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -17,25 +20,29 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.*;
+import android.os.Build;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hjq.toast.ToastUtils;
-import com.hjq.xtoast.OnClickListener;
 import com.hjq.xtoast.XToast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,8 +55,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.ALARM_SERVICE;
@@ -94,7 +99,6 @@ public class Tools {
         } else Toast.makeText(context, "文件不存在或者不可读写", Toast.LENGTH_SHORT).show();
     }
     //读取SD卡中文件的方法
-    //定义读取文件的方法:
     public String readFromSD(String filename) throws IOException {
         StringBuilder sb = new StringBuilder("");
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -136,7 +140,7 @@ public class Tools {
                                         }
                                         //写入
                                         try {
-                                            savaFileToSD(sp.getString("path", Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf"), config);
+                                            savaFileToSD(Environment.getExternalStorageDirectory().getAbsolutePath() +sp.getString("path",  "/tiny/王卡配置.conf"), config);
                                         } catch (Exception e) {
                                             mes("写入失败");
                                         }
@@ -260,13 +264,12 @@ public class Tools {
     }
     //打开tiny软件
     public void openTiny(){
-        switch (sp.getString("packgeName", "com.cqyapp.tinyproxy")) {
-            case "com.cqyapp.tinyproxy":
-                tools.autopoint();
-                break;
-            default:
-                tools.openApp(sp.getString("packgeName", "com.cqyapp.tinyproxy"));
-                break;
+        if (isVpnUsed()) {
+            Log.i("vpn","存在");
+            autopointTwo();
+        } else {
+            Log.i("vpn","不存在");
+            autopointOne();
         }
     }
     //发送消息
@@ -378,16 +381,6 @@ public class Tools {
         }
     }
 
-    //自动点击
-    public void autopoint(){
-        if (isVpnUsed()) {
-            Log.i("vpn","存在");
-            autopointTwo();
-        } else {
-            Log.i("vpn","不存在");
-            autopointOne();
-        }
-    }
 
     private boolean isVpnUsed() {
         try {
@@ -414,12 +407,9 @@ public class Tools {
                 new Runnable() {
                     @Override
                     public void run() {
-                        if(sp.getBoolean("autoClick",true)){
+                        if(sp.getBoolean("autoClick",false)){
                             try{
                                 if(isServiceON(ClickService.class.getName())) {
-                                    if (sp.getBoolean("autoBack",false)){
-                                        Log.i("顶应用",ClickService.foregroundPackageName);
-                                    }
                                     Log.i("tool","运行");
                                     openApp("com.cqyapp.tinyproxy");
                                     new Handler(context.getMainLooper()).postDelayed(new Runnable() {
@@ -461,7 +451,7 @@ public class Tools {
                 new Runnable() {
                     @Override
                     public void run() {
-                        if(sp.getBoolean("autoClick",true)){
+                        if(sp.getBoolean("autoClick",false)){
                             try{
                                 if(isServiceON(ClickService.class.getName())) {
                                     if (sp.getBoolean("autoBack",false)){
@@ -612,10 +602,6 @@ public class Tools {
         return path;
     }
 
-    /**
-     * @param uri the Uri to check
-     * @return Whether the Uri authority is MediaProvider
-     */
     private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
@@ -657,18 +643,6 @@ public class Tools {
                 ((ActivityManager.AppTask) tasks.get(0)).setExcludeFromRecents(sp.getBoolean("hide",false));
             }
         }
-    }
-    //查看应用使用情况权限检测
-    public boolean hasEnableLookPermission(){
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){   // 如果大于等于5.0 再做判断
-            long ts = System.currentTimeMillis();
-            UsageStatsManager usageStatsManager=(UsageStatsManager)context.getSystemService(Service.USAGE_STATS_SERVICE);
-            List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, 0, ts);
-            if (queryUsageStats == null || queryUsageStats.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
     //检查无障碍
     public static boolean isServiceON(String className){

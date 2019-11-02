@@ -1,35 +1,35 @@
 package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.app.Activity;
-import android.content.*;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.provider.Settings;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.*;
-import android.widget.*;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class set extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
     private SharedPreferences sp;
-    private String packgeName, path, backpath;
-    EditText autotime, ip, packge, confPath;
-    Switch hide, openService, screenOff, changeOpen,autoClick, autoBack,autoCheckIp;
+    private String path, backpath;
+    EditText autotime, ip, confPath;
+    Switch hide, openService, screenOff, changeOpen,autoClick,autoCheckIp;
     Tools tools = Tools.getTools();
     SharedPreferences.Editor editor;
 
@@ -69,19 +69,14 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         changeOpen.setOnCheckedChangeListener(this);
         autoClick = (Switch) findViewById(R.id.autoClick);
         autoClick.setOnCheckedChangeListener(this);
-        autoBack = (Switch) findViewById(R.id.autoBack);
-        autoBack.setOnCheckedChangeListener(this);
         autoCheckIp = (Switch) findViewById(R.id.autoCheckIp);
         autoCheckIp.setOnCheckedChangeListener(this);
 
-
-        RadioGroup tinyGroup = (RadioGroup) findViewById(R.id.tinyGroup);
         RadioGroup ipGroup = (RadioGroup) findViewById(R.id.ipGroup);
-        RadioGroup ipWays = (RadioGroup) findViewById(R.id.ipWays);
-        RadioGroup ipPorts = (RadioGroup) findViewById(R.id.ipPorts);
+        Button ipWays = (Button) findViewById(R.id.ipWays);
+        Button ipPorts = (Button) findViewById(R.id.ipPorts);
 
         autotime = (EditText) findViewById(R.id.autotime);
-        packge = (EditText) findViewById(R.id.packge);
         confPath = (EditText) findViewById(R.id.confPath);
         ip = (EditText) findViewById(R.id.ip);
 
@@ -89,7 +84,7 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         Button setting = (Button) findViewById(R.id.setting);
 
         //关于
-        final TextView About_software = findViewById(R.id.About_software);
+        final TextView About_software = (TextView) findViewById(R.id.About_software);
         //获取本地版本号
         String versionName;
         try {
@@ -101,47 +96,6 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         final String final_versionName = versionName;
         About_software.setText("当前版本："+ final_versionName+"\n"+"最新版本：" + MainActivity.versionName_new);
 
-        //获取选中tiny
-        tinyGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                RadioButton tinyversion = (RadioButton) findViewById(checkedId);
-                int version = tinyversion.getId();
-                CharSequence tinyproxy = "TinyProxy", TyProxy = "TyProxy", TyFlow = "TyFlow", VpnProxy = "VpnProxy";
-                if (version == R.id.TinyProxy) {
-                    packgeName = "com.cqyapp.tinyproxy";
-                    String directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tiny";
-                    path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf";
-                    File dir = new File(directory);
-                    File file = new File(path);
-                    if (!dir.exists() | !file.exists()) {
-                        try {
-                            dir.mkdir();
-                            file.createNewFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                if (version == R.id.TyProxy) {
-                    packgeName = "com.android.mantis.typroxy2";
-                    path = "/data/user/0/com.android.mantis.typroxy2/files/tiny.conf";
-                    dialog("/data/user/0/com.android.mantis.typroxy2");
-                }
-                if (version == R.id.TyFlow) {
-                    packgeName = "com.android.TyFlow";
-                    path = "/data/user/0/com.android.TyFlow/files/Tiny.conf";
-                    dialog("/data/user/0/com.android.TyFlow");
-                }
-                if (version == R.id.VpnProxy) {
-                    packgeName = "org.vpn.proxy";
-                    path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf";
-                }
-                packge.setText(packgeName);
-                confPath.setText(path);
-            }
-        });
-
         //获取选中ip
         ipGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -151,46 +105,69 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
             }
         });
         //ip查询方式
-        ipWays.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        ipWays.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case R.id.check_ip_by_helper:
-                        editor.putString("ipWay","helper");
-                        break;
-                    case R.id.check_ip_by_browser:
-                        editor.putString("ipWay","browser");
-                        break;
-                    case R.id.not_check_ip:
-                        editor.putString("ipWay","not");
-                        break;
-                    default:
-                        break;
-                }
-                editor.commit();
+            public void onClick(View view) {
+                PopupMenu popup = new PopupMenu(set.this,ipWays);
+                popup.getMenuInflater().inflate(R.menu.menu_pop, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()){
+                            case R.id.check_ip_by_helper:
+                                ipWays.setText("助手");
+                                editor.putString("ipWay","helper");
+                                break;
+                            case R.id.check_ip_by_browser:
+                                ipWays.setText("浏览器");
+                                editor.putString("ipWay","browser");
+                                break;
+                            case R.id.not_check_ip:
+                                ipWays.setText("不查询");
+                                editor.putString("ipWay","not");
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popup.show();
             }
         });
         //ip查询接口
-        ipPorts.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        ipPorts.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case R.id.check_ip_use_ipip:
-                        editor.putString("ipPort","ipip");
-                        break;
-                    case R.id.check_ip_use_cip:
-                        editor.putString("ipPort","cip");
-                        break;
-                    case R.id.check_use_ipcn:
-                        editor.putString("ipPort","cz88");
-                        break;
-                    case R.id.check_use_pconline:
-                        editor.putString("ipPort","pconline");
-                        break;
-                    default:
-                        break;
-                }
-                editor.commit();
+            public void onClick(View view) {
+                PopupMenu popup = new PopupMenu(set.this,ipPorts);
+                popup.getMenuInflater().inflate(R.menu.menu_ipapi, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()){
+                            case R.id.check_ip_use_ipip:
+                                ipPorts.setText("ipip");
+                                editor.putString("ipPort","ipip");
+                                break;
+                            case R.id.check_ip_use_cip:
+                                ipPorts.setText("cip");
+                                editor.putString("ipPort","cip");
+                                break;
+                            case R.id.check_use_ipcn:
+                                ipPorts.setText("纯真");
+                                editor.putString("ipPort","cz88");
+                                break;
+                            case R.id.check_use_pconline:
+                                ipPorts.setText("pconline");
+                                editor.putString("ipPort","pconline");
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popup.show();
             }
         });
 
@@ -214,7 +191,6 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
                 //存入数据
                 editor.putInt("autotime", Integer.parseInt(autotime.getText().toString()));
                 editor.putString("backpath", backpath);
-                editor.putString("packgeName", packge.getText().toString());
                 editor.putString("path", confPath.getText().toString());
                 editor.putString("ip", ip.getText().toString());
                 editor.putBoolean("doset", true);
@@ -232,50 +208,13 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         openService.setChecked(sp.getBoolean("openService",true));
         screenOff.setChecked(sp.getBoolean("screenOff", false));
         changeOpen.setChecked(sp.getBoolean("changeOpen", false));
-        autoClick.setChecked((sp.getBoolean("autoClick",true)));
-        autoBack.setChecked(sp.getBoolean("autoBack", false));
+        autoClick.setChecked((sp.getBoolean("autoClick",false)));
         autoCheckIp.setChecked(sp.getBoolean("autoCheckIp", true));
 
         autotime.setText(sp.getInt("autotime", 60) + "");
-        packge.setText(sp.getString("packgeName", ""));
-        confPath.setText(sp.getString("path", ""));
+        confPath.setText(sp.getString("path", "/tiny/王卡配置.conf"));
         ip.setText(sp.getString("ip", "157.255.173.182"));
         backpath = sp.getString("backpath", null);
-        switch (sp.getString("ipWay","shell")){
-            case "helper":
-                RadioButton radioButton2 = (RadioButton)findViewById(R.id.check_ip_by_helper);
-                radioButton2.setChecked(true);
-                break;
-            case "browser":
-                RadioButton radioButton3 = (RadioButton)findViewById(R.id.check_ip_by_browser);
-                radioButton3.setChecked(true);
-                break;
-            case "not":
-                RadioButton radioButton = (RadioButton)findViewById(R.id.not_check_ip);
-                radioButton.setChecked(true);
-                break;
-        }
-        switch (sp.getString("ipPort","http://myip.ipip.net")){
-            case "ipip":
-                RadioButton radioButton = (RadioButton)findViewById(R.id.check_ip_use_ipip);
-                radioButton.setChecked(true);
-                break;
-            case "cip":
-                RadioButton radioButton2 = (RadioButton)findViewById(R.id.check_ip_use_cip);
-                radioButton2.setChecked(true);
-                break;
-            case "cz88":
-                RadioButton radioButton3 = (RadioButton)findViewById(R.id.check_use_ipcn);
-                radioButton3.setChecked(true);
-                break;
-            case "pconline":
-                RadioButton radioButton4 = (RadioButton)findViewById(R.id.check_use_pconline);
-                radioButton4.setChecked(true);
-                break;
-            default:
-                break;
-        }
-
     }
 
     //对话框
@@ -318,25 +257,6 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
             case R.id.autoClick:
                 editor.putBoolean("autoClick",autoClick.isChecked());
                 editor.commit();
-                break;
-            case R.id.autoBack:
-                editor.putBoolean("autoBack", autoBack.isChecked());
-                editor.commit();
-                if(autoBack.isChecked()&&!tools.hasEnableLookPermission()) {
-                    AlertDialog alert = null;
-                    AlertDialog.Builder builder = null;
-                    builder = new AlertDialog.Builder(set.this);
-                    alert = builder.setTitle("注意")
-                            .setMessage("该功能需要‘有权查看使用情况的应用’,请授予")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-                                    startActivity(intent);
-                                }
-                            }).create();             //创建AlertDialog对象
-                    alert.show();
-                }
                 break;
             case R.id.autoCheckIp:
                 editor.putBoolean("autoCheckIp",autoCheckIp.isChecked());
