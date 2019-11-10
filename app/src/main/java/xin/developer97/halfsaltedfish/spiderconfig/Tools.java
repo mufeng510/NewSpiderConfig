@@ -38,11 +38,14 @@ import com.hjq.xtoast.XToast;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -87,6 +90,17 @@ public class Tools {
 
     //往SD卡写入文件的方法
     public void savaFileToSD(String filename, String filecontent) throws Exception {
+        String directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tiny";
+        File dir = new File(directory);
+        File file = new File(filename);
+        if (!dir.exists() | !file.exists()) {
+            try {
+                dir.mkdir();
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         //如果手机已插入sd卡,且app具有读写sd卡的权限
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 //            filename = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + filename;
@@ -129,18 +143,18 @@ public class Tools {
                                 if (newConfig != null) {
                                     String time = newConfig.getTime();
                                     final String config = newConfig.getConfig();
-                                    int usetime = getDatePoor(time);
-                                    if ((120 - usetime) > 0) {
+                                    int lasstime = 120 - getDatePoor(time);
+                                    if (lasstime > 0) {
                                         restartTimedTask();
-                                        mes("获取成功，大概剩余" + (120 - usetime) + "分钟");
+                                        mes("获取成功，大概剩余" + lasstime + "分钟");
                                         try {
-                                            MainActivity.updataUI(120-usetime,config);
+                                            MainActivity.updataUI(lasstime, "更新\nGuid：" + newConfig.getGuid() + "\nToken：" + newConfig.getToken() +"\n\n");
                                         }catch (Exception e){
                                             e.printStackTrace();
                                         }
                                         //写入
                                         try {
-                                            savaFileToSD(Environment.getExternalStorageDirectory().getAbsolutePath() +sp.getString("path",  "/tiny/王卡配置.conf"), config);
+                                            savaFileToSD(sp.getString("confPath",  "/storage/emulated/0/tiny/王卡配置.conf"), config);
                                         } catch (Exception e) {
                                             mes("写入失败");
                                         }
@@ -380,7 +394,6 @@ public class Tools {
             }
         }
     }
-
 
     private boolean isVpnUsed() {
         try {

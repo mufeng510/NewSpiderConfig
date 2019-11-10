@@ -21,11 +21,10 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GetPacket extends AppCompatActivity implements  android.view.GestureDetector.OnGestureListener{
+public class GetPacket extends AppCompatActivity{
     CharSequence old;
     Tools tools = Tools.getTools();
     SharedPreferences sp;
-    GestureDetector gd;
 
     static JSONObject jsonObject=new JSONObject();
     @Override
@@ -69,8 +68,6 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_packet);
         sp = getSharedPreferences("mysetting.txt", Context.MODE_PRIVATE);
-        //创建手势检测器
-        gd = new GestureDetector(this,this);
         //自定义壁纸
         RelativeLayout linearLayout = (RelativeLayout)findViewById(R.id.layoutget);
         if (sp.getString("backpath",null)!= null){
@@ -92,20 +89,6 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
         }catch (Exception e){
 
         }
-
-        //自动抓包
-//        Button autopull = (Button)findViewById(R.id.autopull);
-//        autopull.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = VpnService.prepare(getApplicationContext());
-//                if (intent != null) {
-//                    startActivityForResult(intent, 0);
-//                } else {
-//                    onActivityResult(0, RESULT_OK, null);
-//                }
-//            }
-//        });
         //生成配置
         generate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,10 +102,11 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
                     showDialog(newConfig);
                     Toast.makeText(GetPacket.this, "生成成功", Toast.LENGTH_SHORT).show();
                     if(sp.getBoolean("autoOpen",true)){
-                        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + sp.getString("path","/" + "tiny/王卡配置.conf");
+                        String path = sp.getString("confPath","/" + "/storage/emulated/0tiny/王卡配置.conf");
                         String name = sp.getString("packgeName","com.cqyapp.tinyproxy");
                         write(path,config);
                         open(name);
+                        MainActivity.updataUI(120, "更新\nGuid：" + text[0] + "\nToken：" + text[1] +"\n\n");
                     }
 
                 }
@@ -251,50 +235,6 @@ public class GetPacket extends AppCompatActivity implements  android.view.Gestur
         }
     }
     public boolean onTouchEvent(MotionEvent event) {
-        gd.onTouchEvent(event);
         return super.onTouchEvent(event);
-    }
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        float minMove = 120;         //最小滑动距离
-        float minVelocity = 0;      //最小滑动速度
-        float beginX = e1.getX();
-        float endX = e2.getX();
-//        float beginY = e1.getY();
-//        float endY = e2.getY();
-
-        if(beginX-endX>minMove&&Math.abs(velocityX)>minVelocity){   //左滑
-//            Toast.makeText(this,velocityX+"左滑",Toast.LENGTH_SHORT).show();
-        }else if(endX-beginX>minMove&&Math.abs(velocityX)>minVelocity){   //右滑
-            this.finish();
-//            Toast.makeText(this,velocityX+"右滑",Toast.LENGTH_SHORT).show();
-        }
-
-        return false;
     }
 }

@@ -41,7 +41,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -209,18 +211,6 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             requestPermission(view);
-                            String directory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tiny";
-                            String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "tiny/王卡配置.conf";
-                            File dir = new File(directory);
-                            File file = new File(path);
-                            if (!dir.exists() | !file.exists()) {
-                                try {
-                                    dir.mkdir();
-                                    file.createNewFile();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
                         }
                     }).create();             //创建AlertDialog对象
             alert.show();
@@ -322,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     //更新ui
-    public static void updataUI(final int time, final String config){
+    public static void updataUI(final int time, final String addStr){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -343,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
                 timer.start();
-                text.setText(config);
+                text.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date( ))+addStr);
             }
         });
     }

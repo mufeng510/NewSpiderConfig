@@ -2,14 +2,12 @@ package xin.developer97.halfsaltedfish.spiderconfig;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,10 +23,15 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.leon.lfilepickerlibrary.LFilePicker;
+
+import java.util.List;
+
 public class set extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
     private SharedPreferences sp;
-    private String path, backpath;
-    EditText autotime, ip, confPath;
+    private String backpath;
+    EditText autotime, ip;
+    TextView confPath;
     Switch hide, openService, screenOff, changeOpen,autoClick,autoCheckIp;
     Tools tools = Tools.getTools();
     SharedPreferences.Editor editor;
@@ -36,9 +39,15 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            Uri uri = data.getData();
-            backpath = tools.getRealPathFromUri(uri);
-            tools.mes("ok，重启软件生效");
+            if(requestCode==1100) {
+                Uri uri = data.getData();
+                backpath = tools.getRealPathFromUri(uri);
+                tools.mes("ok，重启软件生效");
+            }
+            if(requestCode==1000){
+                List<String> list = data.getStringArrayListExtra("paths");
+                confPath.setText(list.get(0));
+            }
         }
     }
 
@@ -77,9 +86,10 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         Button ipPorts = (Button) findViewById(R.id.ipPorts);
 
         autotime = (EditText) findViewById(R.id.autotime);
-        confPath = (EditText) findViewById(R.id.confPath);
+        confPath = (TextView) findViewById(R.id.confPath);
         ip = (EditText) findViewById(R.id.ip);
 
+        Button chroseConf = (Button)findViewById(R.id.chroseConf);
         Button background = (Button) findViewById(R.id.background);
         Button setting = (Button) findViewById(R.id.setting);
 
@@ -171,6 +181,18 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
             }
         });
 
+        chroseConf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new LFilePicker()
+                        .withActivity(set.this)
+                        .withRequestCode(1000)
+                        .withMutilyMode(false)
+                        .withFileFilter(new String[]{".conf"})
+                        .withStartPath("/storage/emulated/0/tiny")
+                        .start();
+            }
+        });
         background.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,7 +213,7 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
                 //存入数据
                 editor.putInt("autotime", Integer.parseInt(autotime.getText().toString()));
                 editor.putString("backpath", backpath);
-                editor.putString("path", confPath.getText().toString());
+                editor.putString("confPath", confPath.getText().toString());
                 editor.putString("ip", ip.getText().toString());
                 editor.putBoolean("doset", true);
                 editor.commit();
@@ -212,25 +234,9 @@ public class set extends AppCompatActivity implements CompoundButton.OnCheckedCh
         autoCheckIp.setChecked(sp.getBoolean("autoCheckIp", true));
 
         autotime.setText(sp.getInt("autotime", 60) + "");
-        confPath.setText(sp.getString("path", "/tiny/王卡配置.conf"));
+        confPath.setText(sp.getString("confPath", "/storage/emulated/0/tiny/王卡配置.conf"));
         ip.setText(sp.getString("ip", "157.255.173.182"));
         backpath = sp.getString("backpath", null);
-    }
-
-    //对话框
-    public void dialog(String path) {
-        AlertDialog alert = null;
-        AlertDialog.Builder builder = null;
-        builder = new AlertDialog.Builder(set.this);
-        alert = builder.setTitle("注意")
-                .setMessage("如果出现写入失败的情况，请将下面这个目录的权限给满\n" + path)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).create();             //创建AlertDialog对象
-        alert.show();
     }
     //几个开关
     @Override

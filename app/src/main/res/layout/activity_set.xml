@@ -83,8 +83,20 @@
                 android:text="ipip"
                 android:id="@+id/ipPorts"/>
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="配置文件:/内置存储" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
-            <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/confPath"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="配置文件:" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/confPath"/>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="选择文件"
+                android:id="@+id/chroseConf"/>
+
 
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="请选择距你所在地近的ip" android:shadowColor="#FF000000" android:shadowRadius="1.0"/>
